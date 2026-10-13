@@ -1,0 +1,52 @@
+{
+  "existing": {
+    "municipality": {
+      "MUNICIPALITY00": {
+        "id": "MUNICIPALITY00"
+      },
+      "MUNICIPALITY01": {
+        "id": "MUNICIPALITY01"
+      },
+      "MUNICIPALITY02": {
+        "id": "MUNICIPALITY02"
+      }
+    }
+  },
+  "new": {
+    "municipality": {
+      "municipality_ref01": {}
+    }
+  },
+  "requests": {
+    "POST /api/v0/municipalities/search": {
+      "provenance": "operation-contract",
+      "version": 2,
+      "source": "openapi3"
+    },
+    "GET /api/v0/municipalities/search": {
+      "provenance": "operation-contract",
+      "version": 2,
+      "source": "openapi3"
+    },
+    "GET /api/v0/municipalities/{bid}": {
+      "provenance": "operation-contract",
+      "version": 2,
+      "source": "openapi3"
+    },
+    "GET /api/v0/municipalities/all": {
+      "provenance": "operation-contract",
+      "version": 2,
+      "source": "openapi3"
+    },
+    "GET /api/v0/municipalities/count": {
+      "provenance": "operation-contract",
+      "version": 2,
+      "source": "openapi3"
+    },
+    "GET /api/v0/municipalities/generate_files": {
+      "provenance": "operation-contract",
+      "version": 2,
+      "source": "openapi3"
+    }
+  }
+}

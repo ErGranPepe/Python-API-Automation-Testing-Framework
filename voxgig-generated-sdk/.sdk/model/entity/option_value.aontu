@@ -1,0 +1,58 @@
+# Entity: option_value
+
+main: kit: entity: option_value: {
+
+  alias: field: {}
+
+  name: "option_value"
+  op: {
+    load: {
+      name: "load"
+      points: [
+        {
+          co: {
+            id: "GET /api/v0/municipalities/option-values/municipality_names"
+            source: "openapi3"
+            version: 2
+          }
+          m: "GET"
+          o: "/api/v0/municipalities/option-values/municipality_names"
+          q: {
+            "$action": "municipality_name"
+          }
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
+          s: [
+            {
+              lit: "api"
+            }
+            {
+              lit: "v0"
+            }
+            {
+              lit: "municipalities"
+            }
+            {
+              lit: "option-values"
+            }
+            {
+              lit: "municipality_names"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+  }
+
+  fields: {
+  }
+
+
+
+}

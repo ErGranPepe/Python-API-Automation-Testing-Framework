@@ -1,0 +1,27 @@
+{
+  "existing": {
+    "option_value": {
+      "OPTION_VALUE00": {
+        "id": "OPTION_VALUE00"
+      },
+      "OPTION_VALUE01": {
+        "id": "OPTION_VALUE01"
+      },
+      "OPTION_VALUE02": {
+        "id": "OPTION_VALUE02"
+      }
+    }
+  },
+  "new": {
+    "option_value": {
+      "option_value_ref01": {}
+    }
+  },
+  "requests": {
+    "GET /api/v0/municipalities/option-values/municipality_names": {
+      "provenance": "operation-contract",
+      "version": 2,
+      "source": "openapi3"
+    }
+  }
+}

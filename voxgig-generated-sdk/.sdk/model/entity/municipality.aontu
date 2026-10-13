@@ -1,0 +1,342 @@
+# Entity: municipality
+
+main: kit: entity: municipality: {
+
+  alias: field: {}
+
+  fields: {
+    id: {
+      h: "Id"
+      n: "id"
+      r: false
+      t: "`$STRING`"
+    }
+  }
+
+  id: {
+    field: "id"
+    name: "id"
+  }
+
+  name: "municipality"
+  op: {
+    create: {
+      name: "create"
+      points: [
+        {
+          bf: [
+            "capital_city"
+            "format"
+            "mode"
+            "municipality_name"
+            "order_by"
+            "province_identifier"
+            "size"
+          ]
+          co: {
+            id: "POST /api/v0/municipalities/search"
+            source: "openapi3"
+            version: 2
+          }
+          m: "POST"
+          o: "/api/v0/municipalities/search"
+          q: {
+            "$action": "search"
+          }
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
+          s: [
+            {
+              lit: "api"
+            }
+            {
+              lit: "v0"
+            }
+            {
+              lit: "municipalities"
+            }
+            {
+              lit: "search"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+    load: {
+      name: "load"
+      points: [
+        {
+          co: {
+            id: "GET /api/v0/municipalities/search"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            query: [
+              {
+                ex: "-"
+                k: "query"
+                n: "capital_city"
+                or: "capital_city"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                ex: "json"
+                k: "query"
+                n: "format"
+                or: "format"
+                r: false
+                t: "`$ANY`"
+              }
+              {
+                k: "query"
+                n: "mode"
+                or: "mode"
+                r: true
+                t: "`$ANY`"
+              }
+              {
+                ex: "-"
+                k: "query"
+                n: "municipality_name"
+                or: "municipality_name"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                k: "query"
+                n: "order_by"
+                or: "order_by"
+                r: true
+                t: "`$ANY`"
+              }
+              {
+                ex: "-"
+                k: "query"
+                n: "province_identifier"
+                or: "province_identifier"
+                r: false
+                t: "`$STRING`"
+              }
+              {
+                ex: 0
+                k: "query"
+                n: "size"
+                or: "size"
+                r: false
+                t: "`$INTEGER`"
+              }
+            ]
+          }
+          m: "GET"
+          o: "/api/v0/municipalities/search"
+          q: {
+            "$action": "search"
+            exist: [
+              "mode"
+              "order_by"
+            ]
+          }
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
+          s: [
+            {
+              lit: "api"
+            }
+            {
+              lit: "v0"
+            }
+            {
+              lit: "municipalities"
+            }
+            {
+              lit: "search"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+        {
+          co: {
+            id: "GET /api/v0/municipalities/{bid}"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            params: [
+              {
+                k: "param"
+                n: "id"
+                or: "bid"
+                r: true
+                t: "`$STRING`"
+              }
+            ]
+          }
+          m: "GET"
+          o: "/api/v0/municipalities/{bid}"
+          q: {
+            exist: [
+              "id"
+            ]
+          }
+          r: {
+            param: {
+              bid: "id"
+            }
+          }
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
+          s: [
+            {
+              lit: "api"
+            }
+            {
+              lit: "v0"
+            }
+            {
+              lit: "municipalities"
+            }
+            {
+              var: "id"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+        {
+          co: {
+            id: "GET /api/v0/municipalities/all"
+            source: "openapi3"
+            version: 2
+          }
+          g: {
+            query: [
+              {
+                ex: "json"
+                k: "query"
+                n: "format"
+                or: "format"
+                r: false
+                t: "`$ANY`"
+              }
+            ]
+          }
+          m: "GET"
+          o: "/api/v0/municipalities/all"
+          q: {
+            "$action": "all"
+          }
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
+          s: [
+            {
+              lit: "api"
+            }
+            {
+              lit: "v0"
+            }
+            {
+              lit: "municipalities"
+            }
+            {
+              lit: "all"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+        {
+          co: {
+            id: "GET /api/v0/municipalities/count"
+            source: "openapi3"
+            version: 2
+          }
+          m: "GET"
+          o: "/api/v0/municipalities/count"
+          q: {
+            "$action": "count"
+          }
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
+          s: [
+            {
+              lit: "api"
+            }
+            {
+              lit: "v0"
+            }
+            {
+              lit: "municipalities"
+            }
+            {
+              lit: "count"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+        {
+          co: {
+            id: "GET /api/v0/municipalities/generate_files"
+            source: "openapi3"
+            version: 2
+          }
+          m: "GET"
+          o: "/api/v0/municipalities/generate_files"
+          q: {
+            "$action": "generate_file"
+          }
+          rs: {
+            kind: "json"
+            media: "application/json"
+          }
+          s: [
+            {
+              lit: "api"
+            }
+            {
+              lit: "v0"
+            }
+            {
+              lit: "municipalities"
+            }
+            {
+              lit: "generate_files"
+            }
+          ]
+          t: {
+            req: "`reqdata`"
+            res: "`body`"
+          }
+        }
+      ]
+    }
+  }
+
+
+
+}

@@ -1,0 +1,31 @@
+# API Information
+
+
+main: {
+  kit: {
+    info: {
+      description: "Datos Abiertos para municipios"
+      security: {
+        in: "header"
+        name: "Authorization"
+        prefix: "Basic"
+        scheme: "HTTPBasic"
+        type: "http"
+      }
+      servers: [
+        {
+          url: "{base}"
+          variables: {
+            base: {
+              description: "The base URL of the API, which its definition does not name."
+            }
+          }
+        }
+      ]
+      summary: "Datos Abiertos para municipios"
+      title: "pt-exp-dataset-delivery-municipalities"
+      version: "0.0.1"
+    }
+  }
+}
+
