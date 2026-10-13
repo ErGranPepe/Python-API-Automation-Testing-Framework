@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   evaluate:
@@ -69,6 +69,76 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
           npm test
+      - name: Save reviewed generated SDK source on assessment branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/voxgig-sdk-municipios-eval-20261013'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p voxgig-generated-sdk
+          rsync -a --delete \
+            --exclude '.github/' --exclude '.jostraca/' \
+            --exclude 'node_modules/' --exclude 'dist/' --exclude 'dist-test/' \
+            --exclude '*.tsbuildinfo' \
+            experiments/voxgig/out/generated/ voxgig-generated-sdk/
+          cp experiments/voxgig/out/source.openapi.json voxgig-generated-sdk/openapi.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("voxgig-generated-sdk/ts/package.json")
+          pkg = json.loads(p.read_text())
+          repo = "https://github.com/ErGranPepe/Python-API-Automation-Testing-Framework"
+          pkg["homepage"] = repo + "/tree/voxgig-sdk-municipios-eval-20261013/voxgig-generated-sdk"
+          pkg["repository"] = {"type":"git","url":"git+" + repo + ".git"}
+          pkg["bugs"] = {"url":repo + "/issues"}
+          p.write_text(json.dumps(pkg,indent=2,ensure_ascii=False)+"\\n")
+          PY
+          cat > voxgig-generated-sdk/ASSESSMENT.md <<'EOF'
+          # One-off Voxgig DevRel exercise — verification record
+
+          This **unofficial** TypeScript SDK was generated with the real Voxgig
+          `@voxgig/create-sdkgen@0.30.7` from the Junta de Andalucía
+          Municipalities OpenAPI 3.0.2 specification (six paths). The source
+          specification is included as `openapi.json`.
+
+          ## Evidence
+          - GitHub Actions 13 Oct 2026: generator success; `npm run build`
+            success; `npm test`: 224 tests, 215 passed, 0 failed, 9 skipped.
+          - The official count endpoint returned HTTP 200 in CI. This checks
+            service reachability, **not** an end-to-end SDK request.
+          - Tests are mainly the generator's built-in offline test transport.
+          - Re-run the workflow if further live SDK request verification is needed.
+
+          ## How generated
+          ```bash
+          npx --yes @voxgig/create-sdkgen@0.30.7 andalucia-municipalities \
+            -d source.openapi.json -o generated -t ts -f test
+          (cd generated/.sdk && npm run generate)
+          (cd generated/ts && npm install && npm run build && npm test)
+          ```
+
+          No authentication credentials, paid API access, npm release, or other
+          deployment was used. This is evaluation source in a dedicated branch
+          of a repository owned by the contributor, not a published package.
+          Review `LICENSE` for MIT grant and upstream Voxgig copyright.
+
+          ## Developer-experience feedback
+          1. The generator produces a usable project with an offline test harness;
+             it would help newcomers to distinguish those tests from live integration.
+          2. API method names produced from OpenAPI operation IDs may require
+             a manual model audit for idiomatic SDK ergonomics.
+          3. Reproducible examples should include exact CLI and toolchain versions,
+             input-spec URL, and whether service credentials are required.
+          4. Generated npm metadata defaults to a Voxgig catalogue repository URL;
+             contributors should replace it with their actual project URL to avoid
+             broken links before publishing.
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add voxgig-generated-sdk
+          if ! git diff --cached --quiet; then
+            git commit -m "docs(sdk): publish assessed generator output in isolated branch [skip ci]"
+            git push origin HEAD:voxgig-sdk-municipios-eval-20261013
+          fi
       - name: Create generated artifact if present
         if: always()
         shell: bash
