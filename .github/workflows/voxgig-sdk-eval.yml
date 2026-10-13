@@ -1,0 +1,87 @@
+name: Voxgig SDK one-off diagnostic
+
+on:
+  push:
+    branches: [voxgig-sdk-municipios-eval-20261013]
+    paths:
+      - '.github/workflows/voxgig-sdk-eval.yml'
+      - 'experiments/voxgig/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Download and validate candidate OpenAPI source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p experiments/voxgig/out
+          curl --fail --location --silent --show-error --retry 2 --connect-timeout 15 --max-time 45 \
+            'https://datos.juntadeandalucia.es/api/v0/municipalities/openapi.json' \
+            -o experiments/voxgig/out/source.openapi.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("experiments/voxgig/out/source.openapi.json")
+          doc = json.loads(path.read_text(encoding="utf-8"))
+          assert str(doc.get("openapi", "")).startswith("3."), "Not OpenAPI 3"
+          assert len(doc.get("paths", {})) >= 2, "Insufficient API paths"
+          print("OpenAPI", doc["openapi"], "paths:", len(doc["paths"]))
+          PY
+      - name: Check public API (not proof of SDK correctness)
+        continue-on-error: true
+        shell: bash
+        run: |
+          curl --location --silent --show-error --max-time 12 \
+            --write-out 'HTTP status: %{http_code}\n' \
+            'https://datos.juntadeandalucia.es/api/v0/municipalities/count' \
+            -o experiments/voxgig/out/api-response.json
+      - name: Generate with official Voxgig CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm --version
+          npx --yes @voxgig/create-sdkgen@0.30.7 andalucia-municipalities \
+            -d experiments/voxgig/out/source.openapi.json \
+            -o experiments/voxgig/out/generated -t ts -f test
+          test -d experiments/voxgig/out/generated/.sdk
+          (cd experiments/voxgig/out/generated/.sdk && npm run generate)
+      - name: Build and test generated TypeScript SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd experiments/voxgig/out/generated/ts
+          npm install --no-audit --no-fund
+          npm run build
+          npm test
+      - name: Create generated artifact if present
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p experiments/voxgig/artifact
+          if test -d experiments/voxgig/out/generated; then
+            tar -czf experiments/voxgig/artifact/generated-sdk.tar.gz \
+              --exclude='node_modules' \
+              -C experiments/voxgig/out generated
+          fi
+          if test -f experiments/voxgig/out/source.openapi.json; then
+            cp experiments/voxgig/out/source.openapi.json experiments/voxgig/artifact/source.openapi.json
+          fi
+          printf '%s\n' 'Diagnostic only; not published, tested against authenticated API, or submitted to Voxgig.' \
+            > experiments/voxgig/artifact/STATUS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: voxgig-evaluation
+          path: experiments/voxgig/artifact/
+          retention-days: 3
